@@ -14,11 +14,45 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import webapp2
+import braintree
+
+braintree.Configuration.configure(
+    braintree.Environment.Sandbox,
+    'use_your_merchant_id',
+    'use_your_public_key',
+    'use_your_private_key'
+)
+
+# This is needed to make local development work with SSL.
+# See https://code.google.com/p/googleappengine/issues/detail?id=9246
+#
+#from google.appengine.tools.devappserver2.python import sandbox
+#sandbox._WHITE_LIST_C_MODULES += ['_ssl', '_socket']
+#
+#import sys
+#import stdlib_socket
+#socket = sys.modules['socket'] = stdlib_socket
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
-        self.response.write('Hello world!')
+        result = braintree.Transaction.sale({
+            "amount": "10.00",
+            "credit_card": {
+                "number": "4111111111111111",
+                "expiration_date": "05/2020"
+            }
+        })
+        self.response.write("Look at this page with view source.\n")
+        if hasattr(result, 'message'):
+            self.response.write(result.message + "\n")
+        if hasattr(result, 'transaction'):
+            self.response.write(result.transaction.status + "\n")
+            self.response.write(repr(result.transaction))
+        if hasattr(result, 'errors') and result.errors.deep_errors:
+            self.response.write(repr(result.errors.deep_errors))
+
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler)
