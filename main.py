@@ -15,20 +15,11 @@
 # limitations under the License.
 #
 
-import webapp2
-import braintree
-
-braintree.Configuration.configure(
-    braintree.Environment.Sandbox,
-    'use_your_merchant_id',
-    'use_your_public_key',
-    'use_your_private_key'
-)
 
 # This is needed to make local development work with SSL.
 # See http://stackoverflow.com/a/24066819/500584
 # and https://code.google.com/p/googleappengine/issues/detail?id=9246 for more information.
-# 
+#
 # First, copy socket.py out of a standard python install and put it in your project as 'stdlib_socket.py'.
 # Then, uncomment the lines below.
 #
@@ -38,6 +29,16 @@ braintree.Configuration.configure(
 #import sys
 #import stdlib_socket
 #socket = sys.modules['socket'] = stdlib_socket
+
+import webapp2
+import braintree
+
+braintree.Configuration.configure(
+    braintree.Environment.Sandbox,
+    'use_your_merchant_id',
+    'use_your_public_key',
+    'use_your_private_key'
+)
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
