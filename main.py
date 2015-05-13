@@ -15,20 +15,19 @@
 # limitations under the License.
 #
 
+try:
+    # This is needed to make local development work with SSL.
+    # See http://stackoverflow.com/a/24066819/500584
+    # and https://code.google.com/p/googleappengine/issues/detail?id=9246 for more information.
+    from google.appengine.tools.devappserver2.python import sandbox
+    sandbox._WHITE_LIST_C_MODULES += ['_ssl', '_socket']
 
-# This is needed to make local development work with SSL.
-# See http://stackoverflow.com/a/24066819/500584
-# and https://code.google.com/p/googleappengine/issues/detail?id=9246 for more information.
-#
-# First, copy socket.py out of a standard python install and put it in your project as 'stdlib_socket.py'.
-# Then, uncomment the lines below.
-#
-#from google.appengine.tools.devappserver2.python import sandbox
-#sandbox._WHITE_LIST_C_MODULES += ['_ssl', '_socket']
-#
-#import sys
-#import stdlib_socket
-#socket = sys.modules['socket'] = stdlib_socket
+    import sys
+    # this is socket.py copied from a standard python install
+    import stdlib_socket
+    socket = sys.modules['socket'] = stdlib_socket
+except ImportError:
+    pass
 
 import webapp2
 import braintree
