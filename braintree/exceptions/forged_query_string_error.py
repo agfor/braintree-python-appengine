@@ -4,6 +4,6 @@ class ForgedQueryStringError(BraintreeError):
     """
     Raised when the query string has been forged or tampered with during a transparent redirect.
 
-    See https://www.braintreepayments.com/docs/python/general/exceptions#forged_query_string
+    See https://developers.braintreepayments.com/ios+python/reference/general/exceptions#forged-query-string
     """
     pass

@@ -2,9 +2,12 @@ from braintree.add_on import AddOn
 from braintree.add_on_gateway import AddOnGateway
 from braintree.address import Address
 from braintree.address_gateway import AddressGateway
+from braintree.android_pay_card import AndroidPayCard
+from braintree.apple_pay_card import ApplePayCard
 from braintree.braintree_gateway import BraintreeGateway
 from braintree.client_token import ClientToken
 from braintree.configuration import Configuration
+from braintree.credentials_parser import CredentialsParser
 from braintree.credit_card import CreditCard
 from braintree.credit_card_gateway import CreditCardGateway
 from braintree.credit_card_verification import CreditCardVerification
@@ -19,12 +22,14 @@ from braintree.error_codes import ErrorCodes
 from braintree.error_result import ErrorResult
 from braintree.errors import Errors
 from braintree.environment import Environment
+from braintree.merchant import Merchant
 from braintree.merchant_account import MerchantAccount
 from braintree.merchant_account.business_details import BusinessDetails
 from braintree.merchant_account.funding_details import FundingDetails
 from braintree.merchant_account.individual_details import IndividualDetails
 from braintree.merchant_account_gateway import MerchantAccountGateway
 from braintree.payment_method import PaymentMethod
+from braintree.payment_method_nonce import PaymentMethodNonce
 from braintree.unknown_payment_method import UnknownPaymentMethod
 from braintree.payment_instrument_type import PaymentInstrumentType
 from braintree.paypal_account import PayPalAccount
@@ -32,10 +37,13 @@ from braintree.partner_merchant import PartnerMerchant
 from braintree.plan import Plan
 from braintree.plan_gateway import PlanGateway
 from braintree.resource_collection import ResourceCollection
+from braintree.risk_data import RiskData
+from braintree.three_d_secure_info import ThreeDSecureInfo
 from braintree.search import Search
 from braintree.settlement_batch_summary import SettlementBatchSummary
 from braintree.subscription import Subscription
 from braintree.subscription_gateway import SubscriptionGateway
+from braintree.subscription_status_event import SubscriptionStatusEvent
 from braintree.status_event import StatusEvent
 from braintree.testing_gateway import TestingGateway
 from braintree.transaction import Transaction
@@ -55,4 +63,4 @@ from braintree.webhook_notification import WebhookNotification
 from braintree.webhook_notification_gateway import WebhookNotificationGateway
 from braintree.webhook_testing import WebhookTesting
 from braintree.webhook_testing_gateway import WebhookTestingGateway
-from braintree.sepa_bank_account import SEPABankAccount
+from braintree.europe_bank_account import EuropeBankAccount

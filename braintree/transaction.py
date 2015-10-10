@@ -2,6 +2,9 @@ import braintree
 import warnings
 from decimal import Decimal
 from braintree.add_on import AddOn
+from braintree.apple_pay_card import ApplePayCard
+from braintree.coinbase_account import CoinbaseAccount
+from braintree.android_pay_card import AndroidPayCard
 from braintree.disbursement_detail import DisbursementDetail
 from braintree.dispute import Dispute
 from braintree.discount import Discount
@@ -14,12 +17,15 @@ from braintree.configuration import Configuration
 from braintree.credit_card import CreditCard
 from braintree.customer import Customer
 from braintree.paypal_account import PayPalAccount
-from braintree.sepa_bank_account import SEPABankAccount
+from braintree.europe_bank_account import EuropeBankAccount
 from braintree.subscription_details import SubscriptionDetails
 from braintree.resource_collection import ResourceCollection
 from braintree.transparent_redirect import TransparentRedirect
 from braintree.exceptions.not_found_error import NotFoundError
 from braintree.descriptor import Descriptor
+from braintree.risk_data import RiskData
+from braintree.three_d_secure_info import ThreeDSecureInfo
+from braintree.payment_instrument_type import PaymentInstrumentType
 
 class Transaction(Resource):
     """
@@ -72,7 +78,7 @@ class Transaction(Resource):
         print(result.transaction.amount)
         print(result.transaction.order_id)
 
-    For more information on Transactions, see https://www.braintreepayments.com/docs/python/transactions/create
+    For more information on Transactions, see https://developers.braintreepayments.com/ios+python/reference/request/transaction/sale
 
     """
 
@@ -100,13 +106,17 @@ class Transaction(Resource):
         * braintree.Transaction.GatewayRejectionReason.AvsAndCvv
         * braintree.Transaction.GatewayRejectionReason.Cvv
         * braintree.Transaction.GatewayRejectionReason.Duplicate
+        * braintree.Transaction.GatewayRejectionReason.Fraud
+        * braintree.Transaction.GatewayRejectionReason.ThreeDSecure
         """
-        Avs          = "avs"
-        AvsAndCvv    = "avs_and_cvv"
-        Cvv          = "cvv"
-        Duplicate    = "duplicate"
-        Fraud        = "fraud"
-        Unrecognized = "unrecognized"
+        ApplicationIncomplete = "application_incomplete"
+        Avs                   = "avs"
+        AvsAndCvv             = "avs_and_cvv"
+        Cvv                   = "cvv"
+        Duplicate             = "duplicate"
+        Fraud                 = "fraud"
+        ThreeDSecure          = "three_d_secure"
+        Unrecognized          = "unrecognized"
 
     class Source(object):
         Api          = "api"
@@ -174,6 +184,10 @@ class Transaction(Resource):
 
         Credit = "credit"
         Sale = "sale"
+
+    class IndustryType(object):
+        Lodging = "lodging"
+        TravelAndCruise = "travel_cruise"
 
     @staticmethod
     def clone_transaction(transaction_id, params):
@@ -440,13 +454,41 @@ class Transaction(Resource):
                     "store_shipping_address_in_vault",
                     "submit_for_settlement",
                     "venmo_sdk_session",
-                    "payee_email"
+                    "payee_email",
+                    {
+                        "paypal": [
+                            "payee_email",
+                            "custom_field",
+                            "description"
+                        ],
+                        "three_d_secure": [
+                            "required"
+                        ],
+                    },
+                    {
+                        "amex_rewards": [
+                            "request_id",
+                            "points",
+                            "currency_amount",
+                            "currency_iso_code"
+                        ]
+                    },
                 ]
             },
             {"custom_fields": ["__any_key__"]},
             {"descriptor": ["name", "phone", "url"]},
-            {"paypal_account": ["payee_email"]}
-        ]
+            {"paypal_account": ["payee_email"]},
+            {"industry":
+                [
+                    "industry_type",
+                    {
+                        "data": [
+                            "folio_number", "check_in_date", "check_out_date", "departure_date", "lodging_check_in_date", "lodging_check_out_date", "travel_package", "lodging_name", "room_rate"
+                            ]
+                        }
+                    ]
+                }
+            ]
 
     def __init__(self, gateway, attributes):
         if "refund_id" in attributes:
@@ -466,8 +508,14 @@ class Transaction(Resource):
             self.credit_card_details = CreditCard(gateway, attributes.pop("credit_card"))
         if "paypal" in attributes:
             self.paypal_details = PayPalAccount(gateway, attributes.pop("paypal"))
-        if "sepa_bank_account" in attributes:
-            self.sepa_bank_account_details = SEPABankAccount(gateway, attributes.pop("sepa_bank_account"))
+        if "europe_bank_account" in attributes:
+            self.europe_bank_account_details = EuropeBankAccount(gateway, attributes.pop("europe_bank_account"))
+        if "apple_pay" in attributes:
+            self.apple_pay_details = ApplePayCard(gateway, attributes.pop("apple_pay"))
+        if "coinbase_account" in attributes:
+            self.coinbase_details = CoinbaseAccount(gateway, attributes.pop("coinbase_account"))
+        if "android_pay_card" in attributes:
+            self.android_pay_card_details = AndroidPayCard(gateway, attributes.pop("android_pay_card"))
         if "customer" in attributes:
             self.customer_details = Customer(gateway, attributes.pop("customer"))
         if "shipping" in attributes:
@@ -488,6 +536,15 @@ class Transaction(Resource):
             self.disputes = [Dispute(dispute) for dispute in self.disputes]
         if "payment_instrument_type" in attributes:
             self.payment_instrument_type = attributes["payment_instrument_type"]
+
+        if "risk_data" in attributes:
+            self.risk_data = RiskData(attributes["risk_data"])
+        else:
+            self.risk_data = None
+        if "three_d_secure_info" in attributes and not attributes["three_d_secure_info"] == None:
+            self.three_d_secure_info = ThreeDSecureInfo(attributes["three_d_secure_info"])
+        else:
+            self.three_d_secure_info = None
 
     @property
     def refund_id(self):

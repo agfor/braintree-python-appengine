@@ -3,8 +3,12 @@ from braintree.util.http import Http
 from braintree.successful_result import SuccessfulResult
 from braintree.error_result import ErrorResult
 from braintree.resource import Resource
+from braintree.apple_pay_card import ApplePayCard
+from braintree.android_pay_card import AndroidPayCard
 from braintree.credit_card import CreditCard
 from braintree.paypal_account import PayPalAccount
+from braintree.europe_bank_account import EuropeBankAccount
+from braintree.coinbase_account import CoinbaseAccount
 from braintree.address import Address
 from braintree.configuration import Configuration
 from braintree.ids_search import IdsSearch
@@ -56,7 +60,7 @@ class Customer(Resource):
         print(result.customer.id)
         print(result.customer.first_name)
 
-    For more information on Customers, see https://www.braintreepayments.com/docs/python/customers/create
+    For more information on Customers, see https://developers.braintreepayments.com/ios+python/reference/request/customer/create
 
     """
 
@@ -185,10 +189,31 @@ class Customer(Resource):
 
     def __init__(self, gateway, attributes):
         Resource.__init__(self, gateway, attributes)
+        self.payment_methods = []
+
         if "credit_cards" in attributes:
             self.credit_cards = [CreditCard(gateway, credit_card) for credit_card in self.credit_cards]
+            self.payment_methods += self.credit_cards
         if "addresses" in attributes:
             self.addresses = [Address(gateway, address) for address in self.addresses]
 
         if "paypal_accounts" in attributes:
             self.paypal_accounts  = [PayPalAccount(gateway, paypal_account) for paypal_account in self.paypal_accounts]
+            self.payment_methods += self.paypal_accounts
+
+        if "apple_pay_cards" in attributes:
+            self.apple_pay_cards  = [ApplePayCard(gateway, apple_pay_card) for apple_pay_card in self.apple_pay_cards]
+            self.payment_methods += self.apple_pay_cards
+
+        if "android_pay_cards" in attributes:
+            self.android_pay_cards  = [AndroidPayCard(gateway, android_pay_card) for android_pay_card in self.android_pay_cards]
+            self.payment_methods += self.android_pay_cards
+
+        if "europe_bank_accounts" in attributes:
+            self.europe_bank_accounts = [EuropeBankAccount(gateway, europe_bank_account) for europe_bank_account in self.europe_bank_accounts]
+            self.payment_methods += self.europe_bank_accounts
+
+        if "coinbase_accounts" in attributes:
+            self.coinbase_accounts = [CoinbaseAccount(gateway, coinbase_account) for coinbase_account in self.coinbase_accounts]
+            self.payment_methods += self.coinbase_accounts
+

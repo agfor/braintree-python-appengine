@@ -1,8 +1,11 @@
 import braintree
+from braintree.apple_pay_card import ApplePayCard
 from braintree.credit_card import CreditCard
 from braintree.payment_method import PaymentMethod
 from braintree.paypal_account import PayPalAccount
-from braintree.sepa_bank_account import SEPABankAccount
+from braintree.europe_bank_account import EuropeBankAccount
+from braintree.coinbase_account import CoinbaseAccount
+from braintree.android_pay_card import AndroidPayCard
 from braintree.unknown_payment_method import UnknownPaymentMethod
 from braintree.error_result import ErrorResult
 from braintree.exceptions.not_found_error import NotFoundError
@@ -25,10 +28,10 @@ class PaymentMethodGateway(object):
             if payment_method_token == None or payment_method_token.strip() == "":
                 raise NotFoundError()
 
-            response = self.config.http().get("/payment_methods/any/" + payment_method_token)
+            response = self.config.http().get(self.config.base_merchant_path() + "/payment_methods/any/" + payment_method_token)
             return self._parse_payment_method(response)
         except NotFoundError:
-            raise NotFoundError("payment method with token " + payment_method_token + " not found")
+            raise NotFoundError("payment method with token " + repr(payment_method_token) + " not found")
 
     def update(self, payment_method_token, params):
         Resource.verify_keys(params, PaymentMethod.update_signature())
@@ -41,14 +44,14 @@ class PaymentMethodGateway(object):
                 {"payment_method": params}
             )
         except NotFoundError:
-            raise NotFoundError("payment method with token " + payment_method_token + " not found")
+            raise NotFoundError("payment method with token " + repr(payment_method_token) + " not found")
 
     def delete(self, payment_method_token):
-        self.config.http().delete("/payment_methods/any/" + payment_method_token)
+        self.config.http().delete(self.config.base_merchant_path() + "/payment_methods/any/" + payment_method_token)
         return SuccessfulResult()
 
     def _post(self, url, params={}):
-        response = self.config.http().post(url, params)
+        response = self.config.http().post(self.config.base_merchant_path() + url, params)
         if "api_error_response" in response:
             return ErrorResult(self.gateway, response["api_error_response"])
         else:
@@ -56,7 +59,7 @@ class PaymentMethodGateway(object):
             return SuccessfulResult({"payment_method": payment_method})
 
     def _put(self, url, params={}):
-        response = self.config.http().put(url, params)
+        response = self.config.http().put(self.config.base_merchant_path() + url, params)
         if "api_error_response" in response:
             return ErrorResult(self.gateway, response["api_error_response"])
         else:
@@ -68,8 +71,14 @@ class PaymentMethodGateway(object):
             return PayPalAccount(self.gateway, response["paypal_account"])
         elif "credit_card" in response:
             return CreditCard(self.gateway, response["credit_card"])
-        elif "sepa_bank_account" in response:
-            return SEPABankAccount(self.gateway, response["sepa_bank_account"])
+        elif "europe_bank_account" in response:
+            return EuropeBankAccount(self.gateway, response["europe_bank_account"])
+        elif "apple_pay_card" in response:
+            return ApplePayCard(self.gateway, response["apple_pay_card"])
+        elif "android_pay_card" in response:
+            return AndroidPayCard(self.gateway, response["android_pay_card"])
+        elif "coinbase_account" in response:
+            return CoinbaseAccount(self.gateway, response["coinbase_account"])
         else:
             name = list(response)[0]
             return UnknownPaymentMethod(self.gateway, response[name])
