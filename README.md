@@ -12,4 +12,4 @@ The main points here are:
 
 requests versions 2.6.1, 2.6.2, and 2.7.0 use versions of urllib3
 that don't work correctly with the App Engine urlfetch API.
-Either use a different version of requests or [see this github issue for a workaround](https://github.com/kennethreitz/requests/issues/2595).
+Either use an earlier version of requests or [use this commit from my branch of requests to fix it](https://github.com/agfor/requests/commit/655dc083bb020a30ddf9c2c6202bbc0c8b39cb58). [See this github issue for more information](https://github.com/kennethreitz/requests/issues/2595).
