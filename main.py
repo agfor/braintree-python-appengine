@@ -17,6 +17,7 @@
 
 try:
     # This is needed to make local development work with SSL.
+    # This must be done *before* you import the Braintree Python library.
     # See http://stackoverflow.com/a/24066819/500584
     # and https://code.google.com/p/googleappengine/issues/detail?id=9246 for more information.
     from google.appengine.tools.devappserver2.python import sandbox
@@ -25,9 +26,9 @@ try:
     import sys
     # this is socket.py copied from a standard python install
     import stdlib_socket
-    socket = sys.modules['socket'] = stdlib_socket
-except ImportError:
-    pass
+    sys.modules['socket'] = stdlib_socket
+except ImportError as e:
+    print(e)
 
 import webapp2
 import braintree
